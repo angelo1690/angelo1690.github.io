@@ -58,23 +58,12 @@
       100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* Botón de música */
-    .music-btn {
-      margin-top: 30px;
-      padding: 12px 25px;
-      font-size: 18px;
-      background: gold;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: bold;
-      box-shadow: 0 0 15px rgba(255,255,0,0.8);
-    }
-
-    /* Ocultar el iframe al inicio */
+    /* Reproductor YouTube invisible */
     #yt-player {
-      display: none;
-      margin-top: 20px;
+      width: 0;
+      height: 0;
+      border: none;
+      visibility: hidden;
     }
   </style>
 </head>
@@ -86,29 +75,13 @@
     
     <div class="message">Flores virtuales 🌻</div>
 
-    <!-- Botón para reproducir -->
-    <button class="music-btn" id="playBtn">Reproducir música 🎶</button>
-
-    <!-- YouTube embed -->
-    <iframe id="yt-player" width="0" height="0" 
-      src="https://www.youtube.com/embed/PykXcyfPUk4?enablejsapi=1"
+    <!-- YouTube autoplay en mute -->
+    <iframe id="yt-player"
+      src="https://www.youtube.com/embed/PykXcyfPUk4?autoplay=1&mute=1&loop=1&playlist=PykXcyfPUk4"
       title="Flores Amarillas"
       frameborder="0"
       allow="autoplay">
     </iframe>
   </div>
-
-  <script>
-    const playBtn = document.getElementById("playBtn");
-    const ytPlayer = document.getElementById("yt-player");
-
-    playBtn.addEventListener("click", () => {
-      ytPlayer.style.display = "block"; 
-      ytPlayer.width = "560";
-      ytPlayer.height = "315";
-      ytPlayer.src += "&autoplay=1";
-      playBtn.style.display = "none"; 
-    });
-  </script>
 </body>
 </html>
