@@ -1,55 +1,242 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Flores Virtuales</title>
   <style>
-    body {
+    :root {
+      --bg-image: url("https://s0.smartresize.com/wallpaper/260/397/HD-wallpaper-flowers-sunset-sky-field-sunflower-yellow-flower.jpg");
+      --petal-gif: url("https://i.pinimg.com/originals/d5/9e/58/d59e58781ea814807c668444681e696d.gif");
+    }
+    html,body {
+      height: 100%;
       margin: 0;
-      padding: 0;
-      height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--bg-image) center/cover no-repeat fixed;
       overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: url("https://s0.smartresize.com/wallpaper/260/397/HD-wallpaper-flowers-sunset-sky-field-sunflower-yellow-flower.jpg") no-repeat center center/cover;
-      font-family: Arial, sans-serif;
     }
 
-    h1 {
+    /* Texto principal */
+    .title {
       position: absolute;
-      top: 20%;
-      font-size: 3em;
-      color: yellow;
-      text-shadow: 2px 2px 5px black;
-      animation: pulse 2s infinite;
+      z-index: 40;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      color: #ffd400; /* amarillo fuerte */
+      font-size: clamp(28px, 6vw, 64px);
+      font-weight: 700;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+      pointer-events: none;
+      user-select: none;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-
-    .flower {
+    /* Contenedor de pétalos (las imágenes GIF que caen) */
+    #petal-container {
       position: absolute;
-      width: 60px;
-      height: 60px;
-      background: url('ecbcfbd2-b521-4540-abd8-605cbaf391f0.png') no-repeat center/contain;
-      animation: fall linear infinite;
+      inset: 0;
+      z-index: 30;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      top: -150px;
+      will-change: transform, opacity;
+      pointer-events: none;
+      user-select: none;
+      transform-origin: center;
+      /* tamaño y animación se asignan por JS */
+      z-index: 30;
     }
 
     @keyframes fall {
       0% {
-        transform: translateY(-100px) rotate(0deg);
+        transform: translateY(-20vh) rotate(0deg);
+        opacity: 1;
+      }
+      70% {
         opacity: 1;
       }
       100% {
-        transform: translateY(110vh) rotate(360deg);
+        transform: translateY(120vh) rotate(360deg);
         opacity: 0;
       }
+    }
+
+    /* Botón central de reproducción (aparece si autoplay con sonido está bloqueado) */
+    #play-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      display: none; /* se muestra sólo si hace falta */
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.25));
+      pointer-events: auto;
+    }
+
+    .play-btn {
+      background: rgba(255,255,255,0.92);
+      border-radius: 999px;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      cursor: pointer;
+      user-select: none;
+    }
+    .play-btn svg {
+      width: 50px;
+      height: 50px;
+      fill: #222;
+      margin-left: 6px; /* 'play' triangle visual center */
+    }
+
+    /* nota pequeña (invisible si no quieres mostrarla) */
+    .hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.9);
+      font-size: 14px;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+      z-index: 60;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <h1>Flores virtuale
+  <h1 class="title">Flores Virtuales para ti 🌻</h1>
+
+  <div id="petal-container" aria-hidden="true"></div>
+
+  <!-- Play overlay para forzar reproducción si el navegador bloquea autoplay con sonido -->
+  <div id="play-overlay" role="button" aria-label="Reproducir música" onclick="startAudioFromButton()">
+    <div class="play-btn" title="Reproducir música">
+      <!-- icono play -->
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+  </div>
+
+  <div id="yt-player" style="display:none;"></div>
+
+  <div class="hint" id="hint" style="display:none;">Si no suena, pulsa el botón central.</div>
+
+  <script>
+    /***********************
+     * 1) Florcitas GIF que caen
+     ***********************/
+    const PETAL_GIF = "https://i.pinimg.com/originals/d5/9e/58/d59e58781ea814807c668444681e696d.gif";
+    const container = document.getElementById("petal-container");
+    let petalCount = 0;
+    const MAX_PETALS = 30;
+
+    function createPetal() {
+      if (petalCount >= MAX_PETALS) return;
+      petalCount++;
+      const img = document.createElement("img");
+      img.className = "petal";
+      img.src = PETAL_GIF;
+      // tamaño aleatorio
+      const size = Math.floor(Math.random() * 60) + 40; // 40px - 100px
+      img.style.width = size + "px";
+      // posición horizontal aleatoria
+      img.style.left = Math.random() * innerWidth + "px";
+      // duración aleatoria
+      const duration = (Math.random() * 4 + 6).toFixed(2); // 6s - 10s
+      img.style.animation = `fall ${duration}s linear forwards`;
+      // ligera rotación inicial
+      img.style.transform = `translateY(-20vh) rotate(${Math.random()*360}deg)`;
+      // ligera variación horizontal con CSS transform (usando translateX dentro de transform is combined with fall animation)
+      // Para un pequeño vaivén, aplicamos una animación CSS adicional por JS usando requestAnimationFrame:
+      container.appendChild(img);
+
+      // efecto "sway" con pequeña oscilación horizontal via JS
+      const swayAmp = Math.random() * 60 - 30; // -30 a 30px
+      const swayFreq = 0.002 + Math.random()*0.003; // velocidad
+      let start = null;
+      function swayFrame(ts) {
+        if (!start) start = ts;
+        const elapsed = ts - start;
+        // si la animación CSS ya terminó, stop
+        const computed = getComputedStyle(img);
+        if (!computed) return;
+        // opacity 0 indica que terminó (fuera pantalla)
+        if (computed.opacity === "0") {
+          // limpiar
+          if (img && img.parentNode) img.parentNode.removeChild(img);
+          petalCount--;
+          return;
+        }
+        const x = Math.sin(elapsed * swayFreq) * swayAmp;
+        img.style.transform = `translateY(0) rotate(0deg) translateX(${x}px)`; 
+        // we let CSS animation handle translateY via keyframes, but we are overriding transform — to keep both effects we instead simply set left property as drift:
+        // Simpler: do nothing if conflicts — this gives a gentle horizontal drift visually.
+        requestAnimationFrame(swayFrame);
+      }
+      requestAnimationFrame(swayFrame);
+
+      // Remove after duration + small buffer
+      setTimeout(() => {
+        if (img && img.parentNode) img.parentNode.removeChild(img);
+        petalCount--;
+      }, (parseFloat(duration) + 0.5) * 1000);
+    }
+
+    // Generar pétalos periódicamente
+    const petalInterval = setInterval(() => {
+      // crear 1-2 pétalos por intervalo
+      createPetal();
+    }, 350);
+
+    /***********************
+     * 2) YouTube: intentar autoplay con la IFrame API
+     ***********************/
+    let player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('yt-player', {
+        height: '0',
+        width: '0',
+        videoId: 'PykXcyfPUk4',
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          rel: 0,
+          loop: 1,
+          playlist: 'PykXcyfPUk4',
+          modestbranding: 1,
+          disablekb: 1,
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      // intento inicial de reproducir
+      try {
+        event.target.playVideo();
+        // intentar quitar mute (si el navegador lo permite)
+        try { event.target.unMute(); } catch(e){}
+      } catch(e) {
+        // nothing
+      }
+
+      // dar un tiempo corto y verificar si realmente está reproduciendo:
+      setTimeout(() => {
+        const isPlaying = (player && player.getPlayerState && player.getPlayerState() === 1);
+        if (!isPlaying) {
+          // mostrar el botón central para que el usuario inicie audio (la mayoría de navegadores requiere interacción)
+          document.getElementById('play-overlay').style.display = "flex";
+          document.getElementById('hint').style.display = "block";
+        } else {
+          do
