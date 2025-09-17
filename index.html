@@ -1,91 +1,26 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Flores virtuales 🌻</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: "Bodoni MT", serif;
-      background: black;
-    }
-
-    /* Fondo de estrellas */
-    .bg-stars {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url("https://gifsanimados.de/img-gifsanimados.de/e/estrellas/cielo-estrellado.gif") center/cover no-repeat;
-      z-index: 0;
-    }
-
-    /* Fondo de brillo dorado encima */
-    .bg-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url("https://i.pinimg.com/originals/d5/9e/58/d59e58781ea814807c668444681e696d.gif") center/cover no-repeat;
-      z-index: 1;
-      mix-blend-mode: screen; /* Mezcla para que se aprecien los dos */
-      opacity: 0.8;
-    }
-
-    /* Contenido principal */
-    .container {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      color: yellow;
-      animation: fadeInUp 3s ease forwards;
-      opacity: 0;
-      transform: translateY(50px);
-    }
-
-    .container img {
-      width: 250px;
-      max-width: 80vw;
-      margin-bottom: 20px;
-    }
-
-    .title {
-      font-size: 2rem;
-    }
-
-    @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
-</head>
 <body>
-  <div class="bg-stars"></div>
-  <div class="bg-overlay"></div>
-
-  <div class="container">
-    <!-- Flores amarillas -->
-    <img src="https://i.pinimg.com/originals/9d/c7/61/9dc76117ace53c9fe1b2f3c37e94eb3e.gif" alt="Flores Amarillas">
-    
-    <!-- Texto -->
-    <div class="title">Flores virtuales 🌻</div>
+  <div id="overlay">
+    <button id="startBtn">Entrar 🌻</button>
   </div>
 
-  <!-- Música autoplay -->
-  <audio autoplay loop>
+  <audio id="bg-music" loop>
     <source src="Flores Amarillas - Floricienta - High Quality.mp3" type="audio/mpeg">
-    Tu navegador no soporta el audio.
   </audio>
+
+  <div class="container hidden">
+    <!-- Tu animación aquí -->
+  </div>
+
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const overlay = document.getElementById("overlay");
+    const container = document.querySelector(".container");
+    const music = document.getElementById("bg-music");
+
+    startBtn.addEventListener("click", () => {
+      music.play();
+      overlay.style.display = "none";
+      container.classList.remove("hidden");
+    });
+  </script>
 </body>
-</html>
