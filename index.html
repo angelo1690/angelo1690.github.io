@@ -13,17 +13,17 @@
       font-family: Arial, sans-serif;
     }
 
-    /* Texto */
     h1 {
       position: absolute;
       top: 10%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 3em;
+      font-size: 2.5em;
       color: yellow;
       text-shadow: 2px 2px 5px black;
       animation: pulse 2s infinite;
       z-index: 10;
+      text-align: center;
     }
 
     @keyframes pulse {
@@ -32,19 +32,18 @@
       100% { transform: translateX(-50%) scale(1); }
     }
 
-    /* Botón reproducir */
     #play-btn {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      padding: 15px 30px;
+      padding: 15px 35px;
       font-size: 1.2em;
       font-weight: bold;
       color: white;
       background: #f39c12;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
       z-index: 20;
@@ -53,7 +52,6 @@
       background: #d35400;
     }
 
-    /* Flores */
     #petal-container {
       position: absolute;
       inset: 0;
@@ -61,6 +59,7 @@
       pointer-events: none;
       overflow: hidden;
     }
+
     .petal {
       position: absolute;
       top: -100px;
@@ -69,30 +68,38 @@
       background: url("https://i.pinimg.com/originals/d5/9e/58/d59e58781ea814807c668444681e696d.gif") no-repeat center/contain;
       animation: fall linear forwards;
     }
+
     @keyframes fall {
       0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
       100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
     }
+
+    /* iframe de YouTube oculto */
+    #yt-player {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      left: -9999px;
+      top: -9999px;
+    }
   </style>
 </head>
 <body>
-  <h1>Flores Virtuales para ti 🌻</h1>
-  <button id="play-btn">Reproducir música</button>
+  <h1>Flores virtuales🌻</h1>
+  <button id="play-btn">Reproducir</button>
   <div id="petal-container"></div>
 
-  <script>
-    // Música al dar clic
-    document.getElementById("play-btn").addEventListener("click", () => {
-      const iframe = document.createElement("iframe");
-      iframe.width = "0";
-      iframe.height = "0";
-      iframe.src = "https://www.youtube.com/embed/PykXcyfPUk4?autoplay=1&loop=1&playlist=PykXcyfPUk4";
-      iframe.frameBorder = "0";
-      iframe.allow = "autoplay";
-      document.body.appendChild(iframe);
+  <!-- Iframe YouTube oculto -->
+  <iframe id="yt-player" frameborder="0" allow="autoplay; encrypted-media"></iframe>
 
-      // ocultar botón
-      document.getElementById("play-btn").style.display = "none";
+  <script>
+    const btn = document.getElementById("play-btn");
+    const player = document.getElementById("yt-player");
+
+    btn.addEventListener("click", () => {
+      // Insertar el src en el clic → así funciona en móvil
+      player.src = "https://www.youtube.com/embed/PykXcyfPUk4?autoplay=1&loop=1&playlist=PykXcyfPUk4";
+      btn.style.display = "none";
     });
 
     // Animación de flores
@@ -102,10 +109,7 @@
       petal.style.left = Math.random() * window.innerWidth + "px";
       petal.style.animationDuration = (Math.random() * 5 + 5) + "s";
       document.getElementById("petal-container").appendChild(petal);
-
-      setTimeout(() => {
-        petal.remove();
-      }, 10000);
+      setTimeout(() => petal.remove(), 10000);
     }
 
     setInterval(createPetal, 800);
