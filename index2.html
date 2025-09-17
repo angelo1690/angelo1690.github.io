@@ -57,13 +57,19 @@
   
   <button class="btn-musica" onclick="playMusic()">Reproducir Música</button>
   
-  <audio id="musica" src="https://www.your-server.com/cancion.mp3"></audio>
+  <audio id="musica" src="https://github.com/angelo1690/angelo1690.github.io/raw/refs/heads/main/Flores%20Amarillas%20-%20Floricienta%20-%20High%20Quality.mp3"></audio>
   
   <script>
     function playMusic() {
       const musica = document.getElementById("musica");
-      musica.play();
-      document.querySelector(".btn-musica").style.display = "none";
+      musica.play()
+        .then(() => {
+          document.querySelector(".btn-musica").style.display = "none";
+        })
+        .catch(error => {
+          alert("Tu navegador bloqueó la reproducción automática. Intenta tocar otra vez el botón.");
+          console.log(error);
+        });
     }
   </script>
 </body>
