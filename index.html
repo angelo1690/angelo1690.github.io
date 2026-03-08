@@ -39,24 +39,34 @@ h1 {
   left: 50%;
   transform: translateX(-50%);
   font-size: 2.6em;
-  color: gold;
+  color: #f7c6ff;
   text-align: center;
   text-shadow:
-    0 0 6px #ffd700,
-    0 0 14px #ffcc00,
+    0 0 8px #ff66ff,
+    0 0 18px #cc33ff,
     2px 2px 10px black;
   z-index: 10;
+  transition: 0.5s;
 }
 
-/* ANIMACIÓN TEXTO */
-.celebrate {
-  animation: pulse 2.5s infinite;
+/* BRILLO CUANDO SUENA LA MÚSICA */
+.glow {
+  animation: glow 2s infinite alternate;
 }
 
-@keyframes pulse {
-  0% { transform: translateX(-50%) scale(1); }
-  50% { transform: translateX(-50%) scale(1.12); }
-  100% { transform: translateX(-50%) scale(1); }
+@keyframes glow {
+  from {
+    text-shadow:
+      0 0 10px #ff66ff,
+      0 0 20px #cc33ff,
+      0 0 30px #9933ff;
+  }
+  to {
+    text-shadow:
+      0 0 20px #ff99ff,
+      0 0 35px #cc66ff,
+      0 0 50px #9933ff;
+  }
 }
 
 /* BOTÓN */
@@ -69,7 +79,7 @@ h1 {
   font-size: 1.2em;
   font-weight: bold;
   color: white;
-  background: linear-gradient(135deg, #f1c40f, #e67e22);
+  background: linear-gradient(135deg,#b84dff,#ff66cc);
   border: none;
   border-radius: 14px;
   cursor: pointer;
@@ -77,8 +87,8 @@ h1 {
   z-index: 20;
 }
 
-/* FLORES */
-#petals, #confetti {
+/* PÉTALOS */
+#petals {
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -87,19 +97,12 @@ h1 {
 .petal {
   position: absolute;
   top: -80px;
-  width: 50px;
-  height: 50px;
-  background: url("https://i.pinimg.com/originals/d5/9e/58/d59e58781ea814807c668444681e696d.gif")
-              no-repeat center / contain;
-  animation: fall linear forwards;
-}
-
-/* CONFETI */
-.confetti {
-  position: absolute;
-  top: -20px;
-  width: 10px;
-  height: 10px;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle,#ff99ff,#cc33ff);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(45deg);
+  opacity: 0.8;
   animation: fall linear forwards;
 }
 
@@ -128,7 +131,6 @@ iframe {
 </div>
 
 <div id="petals"></div>
-<div id="confetti"></div>
 
 <iframe id="player" allow="autoplay"></iframe>
 
@@ -144,8 +146,6 @@ function typeText() {
     textEl.textContent += message.charAt(i);
     i++;
     setTimeout(typeText, 90);
-  } else {
-    textEl.classList.add("celebrate");
   }
 }
 typeText();
@@ -156,11 +156,13 @@ const player = document.getElementById("player");
 
 btn.addEventListener("click", () => {
   player.src =
-    "https://www.youtube.com/embed/OukQDrJ7QRQ?autoplay=1&loop=1&playlist=OukQDrJ7QRQ";
+  "https://www.youtube.com/embed/OukQDrJ7QRQ?autoplay=1&loop=1&playlist=OukQDrJ7QRQ";
+
   btn.style.display = "none";
+  textEl.classList.add("glow");
 });
 
-/* FLORES */
+/* PÉTALOS ROSADOS */
 function createPetal() {
   const p = document.createElement("div");
   p.className = "petal";
@@ -169,19 +171,8 @@ function createPetal() {
   document.getElementById("petals").appendChild(p);
   setTimeout(() => p.remove(), 12000);
 }
-setInterval(createPetal, 800);
 
-/* CONFETI */
-function createConfetti() {
-  const c = document.createElement("div");
-  c.className = "confetti";
-  c.style.left = Math.random() * window.innerWidth + "px";
-  c.style.backgroundColor = `hsl(${Math.random()*360},80%,60%)`;
-  c.style.animationDuration = (Math.random() * 3 + 3) + "s";
-  document.getElementById("confetti").appendChild(c);
-  setTimeout(() => c.remove(), 6000);
-}
-setInterval(createConfetti, 300);
+setInterval(createPetal, 700);
 
 </script>
 
